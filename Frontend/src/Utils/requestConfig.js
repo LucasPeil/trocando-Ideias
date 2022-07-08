@@ -23,4 +23,7 @@ export const requestConfig = (method,data, image=null, token=null)=>{
 
     if(token ) config.headers.Authorization = `Bearer ${token}`;
 
+    return config;
+
 }
+export const api = "http://localhost:5000/api";
