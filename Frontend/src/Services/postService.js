@@ -87,7 +87,7 @@ const like = async(id,token)=>{
     }
 }
 
-const comment = async(data, id,token)=>{
+const comment = async(id,token,data)=>{
     const config = requestConfig("PUT",data, token);
     try {
         const commentResponse = await fetch(api + "/posts/comment/" +id, config).then((res)=> res.json()).catch((err)=> err)

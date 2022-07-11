@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import {postService} from "../Services/postService"
 
 const initialState = {
@@ -55,4 +55,49 @@ export const updatePost = createAsyncThunk("post/updatePost", async(postData, th
     if(data.erros) return thunkAPI.rejectWithValue(data.errors[0]);
 
     return data
+})
+
+export const searchPosts = createAsyncThunk("post/searchPosts", async(query,thunkAPI)=>{
+    const data = await postService.searchPosts(query);
+    if (data.errors) return thunkAPI.rejectWithValue(data.errors[0])
+    return data
+})
+
+export const like = createAsyncThunk("post/like", async(id,thunkAPI)=>{
+    const token = thunkAPI.getState().auth.user.token;
+    const data = await postService.like(id,token);
+    if (data.errors) return thunkAPI.rejectWithValue(data.errors[0])
+    return data
+})
+
+export const comment = createAsyncThunk("post/comment", async(id,textData,thunkAPI)=>{
+    const token = thunkAPI.getState().auth.user.token;
+    const data = await postService.comment(id,token,textData);
+    if (data.errors) return thunkAPI.rejectWithValue(data.errors[0])
+    return data
+})
+
+const postSlice = createSlice({
+    name: "post",
+    initialState,
+    reducers:{
+        resetMessage: (state)=>{
+            state.message =null;
+        }
+    },
+    extraReducers: (builder) =>{
+        builder
+        .addCase(publishPost.pending, (state)=>{
+            state.loading = true;
+            state.error= null
+        })
+        .addCase(publishPost.fulfilled, (state,action)=>{
+            state.loading = false;
+            state.error=null;
+            state.success = true;
+            state.photo = action.payload;
+            state.photos.unshift(state.photo)
+            state.message = "Post publicado com sucesso!"
+        })
+    }
 })
