@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import {postService} from "../Services/postService"
 
 const initialState = {
-    photos:[],
-    photo:{},
+    postData:[],
+    postsData:{},
     success: false,
     loading:false,
     error:false,
@@ -95,9 +95,155 @@ const postSlice = createSlice({
             state.loading = false;
             state.error=null;
             state.success = true;
-            state.photo = action.payload;
-            state.photos.unshift(state.photo)
+            state.postData = action.payload;
+            state.postsData.unshift(state.postData)
             state.message = "Post publicado com sucesso!"
         })
-    }
+        .addCase(publishPost.rejected, (state,action)=>{
+            state.loading= false;
+            state.error=action.payload;
+            state.postData=null
+        })
+        .addCase(getUserPosts.pending, (state)=>{
+          state.loading =true;
+          state.error = null;
+        })
+        .addCase(getUserPosts.fulfilled, (state, action)=>{
+          state.loading=false;
+          state.success=true;
+          state.error =null;
+          state.postsData = action.payload   
+        })
+        .addCase(getUserPosts.rejected, (state,action)=>{
+            state.loading= false;
+            state.error=action.payload;
+            state.postsData=null
+        })
+    
+      .addCase(getPost.pending, (state)=>{
+          state.loading =true;
+          state.error= null
+      } )
+      .addCase(getPost.fulfilled, (state, action)=>{
+        state.loading = false;
+        state.success = true
+        state.postData = action.payload;
+        state.error = null;
+      })
+      .addCase(getPost.rejected, (state,action)=>{
+        state.loading = false;
+        state.error= action.payload;
+        state.postData = null;
+      })
+      .addCase(getAllPosts.pending, (state)=>{
+        state.loading =true;
+        state.error = null;
+      })
+      .addCase(getAllPosts.fulfilled, (state, action)=>{
+        state.loading=false;
+        state.success=true;
+        state.error =null;
+        state.postsData = action.payload
+        
+      })
+      .addCase(getAllPosts.rejected, (state) =>{
+        state.loading =false;
+        state.error=action.payload;
+        state.postsData=null
+      })
+    .addCase(deletePost.pending, (state)=>{
+        state.loading =true;
+        state.error= null
+    } )
+    .addCase(deletePost.fulfilled, (state,action)=>{
+      state.loading = false;
+      state.success = true
+      state.error = null;
+      state.postsData = state.postsData.filter((post)=> post._id !== action.payload.id)  
+      state.message = action.payload.message;  
+    })
+    .addCase(deletePost.rejected, (state,action)=>{
+      state.loading = false;
+      state.postData = null;
+      state.error = action.payload;
+    })
+    .addCase(updatePost.pending, (state)=>{
+        state.loading =true;
+        state.error = null;
+ 
+      })
+      .addCase(updatePost.fulfilled, (state, action)=>{
+        state.loading=false;
+        state.success=true;
+        state.error =null;
+        state.postsData.map((post)=>{
+            if(post._id === action.payload.post._id){
+                post.title = action.payload.post.title;
+                post.text = action.payload.post.text;
+                return post
+            }
+            return post;
+        });
+        state.message = action.payload.message;
+        
+      })
+      .addCase(updatePost.rejected, (state)=>{
+        state.loading =false;
+        state.error=action.payload;
+        state.postData=null
+      })
+    .addCase(searchPosts.pending, (state)=>{
+        state.loading =true;
+        state.error= null
+    } )
+    .addCase(searchPosts.fulfilled, (state, action)=>{
+      state.loading = false;
+      state.success = true
+      state.postData = action.payload;
+      state.error = null;
+    })
+    .addCase(searchPosts.rejected, (state,action)=>{
+      state.loading = false;
+      state.error= action.payload;
+      state.postData = null;
+    })
+    .addCase(like.fulfilled, (state, action)=>{
+        state.loading=false;
+        state.success=true;
+        state.error =null;
+        if(state.postData.likes){
+            state.postData.likes.push(action.payload.userId)
+        }
+        //reload template withe the like
+        state.postsData.map((post)=>{
+            if(postData._id === action.payload.postDataId){
+                return postData.likes.push(action.payload.userId)
+            }
+            return post;
+        })
+        state.message = action.payload.message
+      })
+    .addCase(like.rejected, (state) =>{
+        state.loading =false;
+        state.error=action.payload;
+      })
+    .addCase(comment.pending, (state)=>{
+        state.loading =true;
+        state.error= null
+    } )
+    .addCase(comment.fulfilled, (state, action)=>{
+      state.loading = false;
+      state.success = true
+      state.error = null;
+      state.postData.comments.push(action.payload.comment);
+      state.message = action.payload.message
+    })
+    .addCase(comment.rejected, (state,action)=>{
+      state.loading = false;
+      state.error= action.payload;
+
+    })
+  
+  }
+    
 })
